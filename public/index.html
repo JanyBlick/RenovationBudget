@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Renovation Budget</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/fhevmjs@0.5.4/bundle/umd.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏠 Private Renovation Budget</h1>
+            <p>Confidentially calculate renovation costs with encrypted blockchain data</p>
+        </header>
+
+        <div id="connection-status" class="status-card">
+            <span id="status-text">Connect Wallet</span>
+            <button id="connect-btn" onclick="connectWallet()">Connect MetaMask</button>
+        </div>
+
+        <div id="app-content" style="display: none;">
+            <div class="section">
+                <h2>Contract Management</h2>
+                <div class="contract-info">
+                    <p><strong>Contract Address:</strong> <span id="contract-address">Not deployed</span></p>
+                    <p><strong>Network:</strong> Sepolia Testnet</p>
+                    <p><strong>Your Role:</strong> <span id="user-role">Unknown</span></p>
+                </div>
+            </div>
+
+            <div id="deployment-section" class="section" style="display: none;">
+                <h3>📋 Contract Deployment Required</h3>
+                <p>To use this application, you need to deploy the PrivateRenovationBudget contract first.</p>
+                <div class="deployment-steps">
+                    <h4>Deployment Steps:</h4>
+                    <ol>
+                        <li>Navigate to the project root directory</li>
+                        <li>Run: <code>npx hardhat run scripts/deploy.js --network sepolia</code></li>
+                        <li>Copy the deployed contract address</li>
+                        <li>Update <code>CONTRACT_ADDRESS</code> in <code>app.js</code></li>
+                        <li>Refresh this page</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('homeowner')">Homeowner</button>
+                <button class="tab-btn" onclick="switchTab('contractor')">Contractor</button>
+                <button class="tab-btn" onclick="switchTab('admin')">Admin</button>
+            </div>
+
+            <!-- Homeowner Tab -->
+            <div id="homeowner-tab" class="tab-content active">
+                <div class="section">
+                    <h3>Create New Project</h3>
+                    <button onclick="createProject()" class="btn-primary">Create Renovation Project</button>
+                </div>
+
+                <div class="section">
+                    <h3>Add Room Requirements</h3>
+                    <div class="form-group">
+                        <label>Project ID:</label>
+                        <input type="number" id="project-id" placeholder="Enter project ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Room Area (sq meters):</label>
+                        <input type="number" id="room-area" placeholder="e.g. 25">
+                    </div>
+                    <div class="form-group">
+                        <label>Material Cost per sq meter ($):</label>
+                        <input type="number" id="material-cost" placeholder="e.g. 150">
+                    </div>
+                    <div class="form-group">
+                        <label>Labor Cost per sq meter ($):</label>
+                        <input type="number" id="labor-cost" placeholder="e.g. 100">
+                    </div>
+                    <button onclick="addRoom()" class="btn-primary">Add Room</button>
+                </div>
+
+                <div class="section">
+                    <h3>Calculate Budget</h3>
+                    <div class="form-group">
+                        <label>Project ID:</label>
+                        <input type="number" id="calc-project-id" placeholder="Enter project ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Contingency Percentage (%):</label>
+                        <input type="number" id="contingency" placeholder="e.g. 15" max="50">
+                    </div>
+                    <button onclick="calculateBudget()" class="btn-primary">Calculate Total Budget</button>
+                </div>
+
+                <div class="section">
+                    <h3>View Project Info</h3>
+                    <div class="form-group">
+                        <label>Project ID:</label>
+                        <input type="number" id="view-project-id" placeholder="Enter project ID">
+                    </div>
+                    <button onclick="viewProject()" class="btn-secondary">View Project Details</button>
+                    <button onclick="getBudget()" class="btn-secondary">Get Budget Estimate</button>
+                    <button onclick="getContractors()" class="btn-secondary">View Contractor Bids</button>
+                </div>
+
+                <div class="section">
+                    <h3>Approve Project</h3>
+                    <div class="form-group">
+                        <label>Project ID:</label>
+                        <input type="number" id="approve-project-id" placeholder="Enter project ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Selected Contractor Address:</label>
+                        <input type="text" id="selected-contractor" placeholder="0x...">
+                    </div>
+                    <button onclick="approveProject()" class="btn-success">Approve Project</button>
+                </div>
+            </div>
+
+            <!-- Contractor Tab -->
+            <div id="contractor-tab" class="tab-content">
+                <div class="section">
+                    <h3>Submit Bid</h3>
+                    <div class="form-group">
+                        <label>Project ID:</label>
+                        <input type="number" id="bid-project-id" placeholder="Enter project ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Bid Amount ($):</label>
+                        <input type="number" id="bid-amount" placeholder="e.g. 5000">
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Time (days):</label>
+                        <input type="number" id="time-estimate" placeholder="e.g. 30">
+                    </div>
+                    <button onclick="submitBid()" class="btn-primary">Submit Bid</button>
+                </div>
+
+                <div class="section">
+                    <h3>View My Bids</h3>
+                    <div class="form-group">
+                        <label>Project ID:</label>
+                        <input type="number" id="my-bid-project-id" placeholder="Enter project ID">
+                    </div>
+                    <button onclick="viewMyBid()" class="btn-secondary">View My Bid</button>
+                </div>
+            </div>
+
+            <!-- Admin Tab -->
+            <div id="admin-tab" class="tab-content">
+                <div class="section">
+                    <h3>Verify Contractor</h3>
+                    <div class="form-group">
+                        <label>Contractor Address:</label>
+                        <input type="text" id="contractor-address" placeholder="0x...">
+                    </div>
+                    <button onclick="verifyContractor()" class="btn-primary">Verify Contractor</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="results-section"></div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Processing transaction...</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
