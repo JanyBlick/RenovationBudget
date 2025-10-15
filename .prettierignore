@@ -1,0 +1,39 @@
+# ========================================
+# Prettier Ignore Configuration
+# Private Renovation Budget Manager
+# ========================================
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build artifacts
+artifacts/
+cache/
+coverage/
+typechain-types/
+dist/
+build/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.github/
+
+# Documentation (preserve formatting)
+*.md
+
+# Other
+*.log
+.DS_Store
+Thumbs.db
