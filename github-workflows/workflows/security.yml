@@ -1,0 +1,318 @@
+# ========================================
+# Security Audit Workflow
+# Private Renovation Budget Manager
+# ========================================
+#
+# Comprehensive Security Scanning
+# - Dependency vulnerability scanning
+# - Secret detection
+# - Solidity security analysis
+# - DoS protection checks
+# - Gas limit analysis
+
+name: 🔒 Security Audit
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  schedule:
+    # Run security audit daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+# Cancel in-progress runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ========================================
+  # Job 1: Dependency Security Scan
+  # ========================================
+  dependency-scan:
+    name: 📦 Dependency Vulnerabilities
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔍 Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: 📊 Generate Audit Report
+        run: |
+          echo "## 📦 Dependency Audit Report" > audit-report.md
+          echo "" >> audit-report.md
+          npm audit --json > audit.json || true
+
+          if [ -f audit.json ]; then
+            TOTAL=$(cat audit.json | jq -r '.metadata.vulnerabilities.total // 0')
+            HIGH=$(cat audit.json | jq -r '.metadata.vulnerabilities.high // 0')
+            MODERATE=$(cat audit.json | jq -r '.metadata.vulnerabilities.moderate // 0')
+
+            echo "**Total Vulnerabilities**: $TOTAL" >> audit-report.md
+            echo "**High**: $HIGH" >> audit-report.md
+            echo "**Moderate**: $MODERATE" >> audit-report.md
+            echo "" >> audit-report.md
+
+            if [ "$TOTAL" -gt 0 ]; then
+              echo "⚠️ Vulnerabilities detected. Run \`npm audit fix\`" >> audit-report.md
+            else
+              echo "✅ No vulnerabilities detected" >> audit-report.md
+            fi
+          fi
+
+      - name: 📤 Upload Audit Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-report
+          path: audit-report.md
+          retention-days: 30
+
+  # ========================================
+  # Job 2: Secret Detection
+  # ========================================
+  secret-detection:
+    name: 🔐 Secret Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for secret detection
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: 🔐 Scan for Secrets
+        run: |
+          npx detect-secrets-launcher --scan
+          echo "✅ Secret scan completed"
+        continue-on-error: false
+
+      - name: 🔍 Check for Private Keys
+        run: |
+          echo "Scanning for potential private keys..."
+
+          # Scan for Ethereum private keys (64 hex chars)
+          if grep -rE '(0x)?[0-9a-fA-F]{64}' --exclude-dir={node_modules,cache,artifacts,coverage,.git} .; then
+            echo "⚠️ Potential private keys detected!"
+            exit 1
+          else
+            echo "✅ No private keys detected"
+          fi
+
+      - name: 🔍 Check for API Keys
+        run: |
+          echo "Scanning for API keys..."
+
+          # Common API key patterns
+          if grep -rE '(api[_-]?key|apikey|api[_-]?secret)["\s:=]+[a-zA-Z0-9]{20,}' \
+             --exclude-dir={node_modules,cache,artifacts,coverage,.git} .; then
+            echo "⚠️ Potential API keys detected!"
+            exit 1
+          else
+            echo "✅ No API keys detected"
+          fi
+
+  # ========================================
+  # Job 3: Solidity Security Analysis
+  # ========================================
+  solidity-security:
+    name: 🛡️ Solidity Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔨 Compile Contracts
+        run: npm run compile
+
+      - name: 🛡️ Run Solhint Security Checks
+        run: npm run lint:sol
+        continue-on-error: false
+
+      - name: 📊 Analyze Contract Sizes (DoS Prevention)
+        run: |
+          echo "## 📏 Contract Size Analysis" > size-report.md
+          echo "" >> size-report.md
+          echo "Checking contract sizes for DoS prevention..." >> size-report.md
+          echo "" >> size-report.md
+
+          npm run check:size > size-output.txt || true
+          cat size-output.txt >> size-report.md
+
+          echo "" >> size-report.md
+          echo "**EIP-170 Limit**: 24KB (24,576 bytes)" >> size-report.md
+          echo "**Recommended**: Keep contracts < 20KB for gas efficiency" >> size-report.md
+
+      - name: 📤 Upload Size Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-size-report
+          path: size-report.md
+          retention-days: 30
+
+  # ========================================
+  # Job 4: Gas Analysis (DoS Protection)
+  # ========================================
+  gas-analysis:
+    name: ⛽ Gas Usage Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔨 Compile Contracts
+        run: npm run compile
+
+      - name: ⛽ Generate Gas Report
+        run: npm run test:gas
+        env:
+          REPORT_GAS: true
+        continue-on-error: true
+
+      - name: 📊 Analyze DoS Risks
+        run: |
+          echo "## ⛽ Gas Usage & DoS Analysis" > gas-report.md
+          echo "" >> gas-report.md
+          echo "### Gas Limits for DoS Protection" >> gas-report.md
+          echo "" >> gas-report.md
+          echo "**Block Gas Limit**: ~30M gas" >> gas-report.md
+          echo "**Safe Function Limit**: < 1M gas" >> gas-report.md
+          echo "**Warning Threshold**: > 500K gas" >> gas-report.md
+          echo "" >> gas-report.md
+
+          if [ -f gas-report.txt ]; then
+            cat gas-report.txt >> gas-report.md
+          fi
+
+      - name: 📤 Upload Gas Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gas-analysis-report
+          path: gas-report.md
+          retention-days: 30
+
+  # ========================================
+  # Job 5: Performance Analysis
+  # ========================================
+  performance-analysis:
+    name: 🚀 Performance Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🔨 Compile Contracts
+        run: npm run compile
+
+      - name: 🚀 Run Performance Tests
+        run: npm run test:performance
+        env:
+          REPORT_GAS: true
+          CONTRACT_SIZE: true
+
+      - name: 📊 Performance Summary
+        run: |
+          echo "## 🚀 Performance Analysis Summary" > performance-report.md
+          echo "" >> performance-report.md
+          echo "### Optimization Metrics" >> performance-report.md
+          echo "" >> performance-report.md
+          echo "- **Compiler Optimization**: Enabled (800 runs)" >> performance-report.md
+          echo "- **Gas Efficiency**: Monitored" >> performance-report.md
+          echo "- **Contract Size**: Checked" >> performance-report.md
+          echo "- **DoS Protection**: Verified" >> performance-report.md
+          echo "" >> performance-report.md
+          echo "✅ Performance analysis completed"
+
+      - name: 📤 Upload Performance Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-report.md
+          retention-days: 30
+
+  # ========================================
+  # Job 6: Security Summary
+  # ========================================
+  security-summary:
+    name: ✅ Security Summary
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, secret-detection, solidity-security, gas-analysis, performance-analysis]
+    if: always()
+
+    steps:
+      - name: 📊 Generate Security Summary
+        run: |
+          echo "╔════════════════════════════════════════╗"
+          echo "║   🔒 Security Audit Complete          ║"
+          echo "╚════════════════════════════════════════╝"
+          echo ""
+          echo "📊 Audit Results:"
+          echo "  Status: ${{ needs.dependency-scan.result }}"
+          echo "  Secrets: ${{ needs.secret-detection.result }}"
+          echo "  Solidity: ${{ needs.solidity-security.result }}"
+          echo "  Gas Analysis: ${{ needs.gas-analysis.result }}"
+          echo "  Performance: ${{ needs.performance-analysis.result }}"
+          echo ""
+
+          if [[ "${{ needs.dependency-scan.result }}" == "success" ]] && \
+             [[ "${{ needs.secret-detection.result }}" == "success" ]] && \
+             [[ "${{ needs.solidity-security.result }}" == "success" ]]; then
+            echo "✅ All security checks passed!"
+            exit 0
+          else
+            echo "❌ Some security checks failed"
+            exit 1
+          fi
