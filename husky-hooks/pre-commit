@@ -1,0 +1,110 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# ========================================
+# Pre-commit Hook
+# Private Renovation Budget Manager
+# ========================================
+#
+# Security & Quality Checks (Left-Shift Strategy)
+# Runs before every commit to catch issues early
+#
+# Checks performed:
+# 1. Solidity linting (Solhint)
+# 2. JavaScript/TypeScript linting (ESLint)
+# 3. Code formatting (Prettier)
+# 4. Secret detection
+# 5. Gas usage warnings
+
+echo "🔒 Running pre-commit security checks..."
+echo ""
+
+# ========================================
+# 1. Solidity Linting
+# ========================================
+echo "📝 [1/5] Checking Solidity code quality (Solhint)..."
+npm run lint:sol
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Solidity linting failed!"
+  echo "   Fix errors with: npm run lint:fix"
+  echo ""
+  exit 1
+fi
+echo "✅ Solidity linting passed"
+echo ""
+
+# ========================================
+# 2. JavaScript/TypeScript Linting
+# ========================================
+echo "📝 [2/5] Checking JavaScript/TypeScript code quality (ESLint)..."
+npm run lint:js
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ JavaScript/TypeScript linting failed!"
+  echo "   Fix errors with: npm run lint:js:fix"
+  echo ""
+  exit 1
+fi
+echo "✅ JavaScript/TypeScript linting passed"
+echo ""
+
+# ========================================
+# 3. Code Formatting
+# ========================================
+echo "🎨 [3/5] Checking code formatting (Prettier)..."
+npm run format:check
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Code formatting check failed!"
+  echo "   Auto-format with: npm run format"
+  echo ""
+  exit 1
+fi
+echo "✅ Code formatting check passed"
+echo ""
+
+# ========================================
+# 4. Secret Detection
+# ========================================
+echo "🔐 [4/5] Scanning for secrets and sensitive data..."
+npm run check:secrets
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Potential secrets detected!"
+  echo "   Review and remove sensitive data before committing"
+  echo ""
+  exit 1
+fi
+echo "✅ No secrets detected"
+echo ""
+
+# ========================================
+# 5. Contract Size Check
+# ========================================
+echo "📏 [5/5] Checking contract sizes..."
+npm run check:size
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "⚠️  Contract size warning (non-blocking)"
+  echo ""
+fi
+echo "✅ Contract size check complete"
+echo ""
+
+# ========================================
+# Success Message
+# ========================================
+echo "╔════════════════════════════════════════╗"
+echo "║  ✅ All pre-commit checks passed! 🎉  ║"
+echo "╚════════════════════════════════════════╝"
+echo ""
+echo "📊 Summary:"
+echo "  ✅ Solidity linting"
+echo "  ✅ JavaScript/TypeScript linting"
+echo "  ✅ Code formatting"
+echo "  ✅ Secret detection"
+echo "  ✅ Contract size check"
+echo ""
+echo "🚀 Ready to commit!"
+echo ""
