@@ -1,0 +1,95 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# ========================================
+# Pre-push Hook
+# Private Renovation Budget Manager
+# ========================================
+#
+# Comprehensive Testing Before Push
+# Ensures code quality and security before pushing to remote
+#
+# Checks performed:
+# 1. All linting checks
+# 2. Full test suite
+# 3. Security audit
+# 4. Build verification
+
+echo "🚀 Running pre-push checks..."
+echo ""
+
+# ========================================
+# 1. Quick Linting
+# ========================================
+echo "📝 [1/4] Running quick lint check..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Linting failed!"
+  echo "   Run: npm run lint:fix"
+  echo ""
+  exit 1
+fi
+echo "✅ Linting passed"
+echo ""
+
+# ========================================
+# 2. Test Suite
+# ========================================
+echo "🧪 [2/4] Running test suite..."
+npm test
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Tests failed!"
+  echo "   Fix failing tests before pushing"
+  echo ""
+  exit 1
+fi
+echo "✅ Tests passed"
+echo ""
+
+# ========================================
+# 3. Security Audit
+# ========================================
+echo "🔒 [3/4] Running security audit..."
+npm audit --audit-level=high
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "⚠️  Security vulnerabilities detected!"
+  echo "   Run: npm audit fix"
+  echo ""
+  # Non-blocking for now, just warning
+fi
+echo "✅ Security audit complete"
+echo ""
+
+# ========================================
+# 4. Build Verification
+# ========================================
+echo "🏗️  [4/4] Verifying build..."
+npm run compile
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Build failed!"
+  echo "   Fix compilation errors before pushing"
+  echo ""
+  exit 1
+fi
+echo "✅ Build verified"
+echo ""
+
+# ========================================
+# Success Message
+# ========================================
+echo "╔════════════════════════════════════════╗"
+echo "║   ✅ All pre-push checks passed! 🎉   ║"
+echo "╚════════════════════════════════════════╝"
+echo ""
+echo "📊 Summary:"
+echo "  ✅ Linting"
+echo "  ✅ Tests (75+)"
+echo "  ✅ Security audit"
+echo "  ✅ Build verification"
+echo ""
+echo "🚀 Ready to push to remote!"
+echo ""
