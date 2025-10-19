@@ -1,0 +1,39 @@
+# ========================================
+# Solhint Ignore Configuration
+# Private Renovation Budget Manager
+# ========================================
+#
+# Files and directories to ignore during Solidity linting
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+artifacts/
+cache/
+coverage/
+typechain-types/
+
+# Test files (optional - uncomment if you want to skip linting tests)
+# test/
+
+# Example contracts
+examples/
+
+# Vendor libraries
+lib/
+
+# Hardhat console (development only)
+contracts/console.sol
+
+# Foundry
+out/
+out_forge/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Documentation
+docs/
