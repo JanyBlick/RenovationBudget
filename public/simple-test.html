@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Wallet Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+    <h1>Simple Wallet Connection Test</h1>
+    <button id="connect-btn" onclick="connectWallet()">Connect MetaMask</button>
+    <div id="result"></div>
+
+    <script>
+        async function connectWallet() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Connecting...';
+
+            try {
+                console.log('Starting connection...');
+
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask not installed');
+                }
+                console.log('MetaMask detected');
+
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                console.log('Accounts:', accounts);
+
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                const address = await signer.getAddress();
+
+                result.innerHTML = 'Connected: ' + address;
+                console.log('Success! Address:', address);
+
+            } catch (error) {
+                result.innerHTML = 'Error: ' + error.message;
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Wallet Connection Diagnostic Test</h1>
+        <p>Click each button in order to diagnose wallet connection issues.</p>
+
+        <button onclick="testBasic()">1. Test MetaMask Detection</button>
+        <button onclick="testEthers()">2. Test Ethers.js Library</button>
+        <button onclick="testConnection()">3. Test Full Connection</button>
+
+        <div id="status">Click a test button above to start...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+    <script>
+        const status = document.getElementById('status');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type;
+            status.innerHTML += '<span class="' + className + '">[' + timestamp + '] ' + message + '</span>\n';
+            console.log(message);
+        }
+
+        function clear() {
+            status.innerHTML = '';
+        }
+
+        async function testBasic() {
+            clear();
+            log('=== Test 1: MetaMask Detection ===', 'info');
+
+            if (typeof window.ethereum !== 'undefined') {
+                log('SUCCESS: window.ethereum exists', 'success');
+                log('Provider: ' + (window.ethereum.isMetaMask ? 'MetaMask' : 'Other'), 'info');
+                log('Chain ID: ' + window.ethereum.chainId, 'info');
+            } else {
+                log('FAILED: window.ethereum not found', 'error');
+                log('Please install MetaMask extension from https://metamask.io', 'error');
+            }
+        }
+
+        async function testEthers() {
+            clear();
+            log('=== Test 2: Ethers.js Library ===', 'info');
+
+            if (typeof ethers !== 'undefined') {
+                log('SUCCESS: ethers library loaded', 'success');
+                log('Version: ' + ethers.version, 'success');
+            } else {
+                log('FAILED: ethers library not loaded', 'error');
+                log('CDN may be blocked or slow', 'error');
+            }
+        }
+
+        async function testConnection() {
+            clear();
+            log('=== Test 3: Full Connection Test ===', 'info');
+
+            try {
+                log('Step 1: Checking MetaMask...', 'info');
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask not installed');
+                }
+                log('SUCCESS: MetaMask detected', 'success');
+
+                log('\nStep 2: Checking Ethers.js...', 'info');
+                if (typeof ethers === 'undefined') {
+                    throw new Error('Ethers.js not loaded');
+                }
+                log('SUCCESS: Ethers.js v' + ethers.version, 'success');
+
+                log('\nStep 3: Requesting account access...', 'info');
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                log('SUCCESS: Got ' + accounts.length + ' account(s)', 'success');
+                log('Address: ' + accounts[0], 'info');
+
+                log('\nStep 4: Creating provider...', 'info');
+                const provider = new ethers.BrowserProvider(window.ethereum);
+                log('SUCCESS: Provider created', 'success');
+
+                log('\nStep 5: Getting signer...', 'info');
+                const signer = await provider.getSigner();
+                const address = await signer.getAddress();
+                log('SUCCESS: Signer address: ' + address, 'success');
+
+                log('\nStep 6: Checking network...', 'info');
+                const network = await provider.getNetwork();
+                log('Network: ' + network.name, 'info');
+                log('Chain ID: ' + network.chainId.toString(), 'info');
+
+                if (network.chainId === 11155111n) {
+                    log('SUCCESS: Already on Sepolia testnet', 'success');
+                } else {
+                    log('WARNING: Not on Sepolia (Chain ID: ' + network.chainId + ')', 'error');
+                }
+
+                log('\n=================================', 'info');
+                log('ALL TESTS PASSED!', 'success');
+                log('Wallet connection is working!', 'success');
+                log('=================================', 'info');
+
+            } catch (error) {
+                log('\n=================================', 'info');
+                log('TEST FAILED!', 'error');
+                log('Error: ' + error.message, 'error');
+                log('=================================', 'info');
+                console.error('Full error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

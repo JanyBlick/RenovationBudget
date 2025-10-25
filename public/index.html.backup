@@ -4,74 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Private Renovation Budget</title>
-
-    <!-- Critical CSS inline to prevent flash -->
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e0e0e0;
-            min-height: 100vh;
-        }
-
-        /* Loading skeleton */
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-
-        .loader-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(124, 77, 255, 0.1);
-            border-top-color: #7c4dff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        .loader-text {
-            margin-top: 20px;
-            color: #e0e0e0;
-            font-size: 16px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .container {
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-        }
-
-        .container.loaded {
-            opacity: 1;
-        }
-    </style>
-
-    <!-- External CSS (non-blocking) -->
-    <link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="styles.css"></noscript>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/fhevmjs@0.5.4/bundle/umd.js"></script>
 </head>
 <body>
-    <!-- Page Loader -->
-    <div class="page-loader" id="pageLoader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">Loading Application...</div>
-    </div>
-
-    <div class="container" id="mainContainer">
+    <div class="container">
         <header>
             <h1>🏠 Private Renovation Budget</h1>
             <p>Confidentially calculate renovation costs with encrypted blockchain data</p>
@@ -235,30 +173,6 @@
         </div>
     </div>
 
-    <!-- Load scripts asynchronously (non-blocking) -->
-    <script>
-        // Show page immediately after DOM loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('mainContainer').classList.add('loaded');
-        });
-
-        // Hide loader after everything loaded
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                const loader = document.getElementById('pageLoader');
-                if (loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(function() {
-                        loader.style.display = 'none';
-                    }, 300);
-                }
-            }, 500);
-        });
-    </script>
-
-    <!-- Load heavy libraries asynchronously -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js" defer></script>
-    <script src="https://unpkg.com/fhevmjs@0.5.4/bundle/umd.js" defer></script>
-    <script src="app.js" defer></script>
+    <script src="app.js"></script>
 </body>
 </html>
