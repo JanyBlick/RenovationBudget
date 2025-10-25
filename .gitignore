@@ -1,0 +1,269 @@
+# ========================================
+# Private Renovation Budget Manager
+# Git Ignore Configuration
+# ========================================
+
+# ========================================
+# Environment & Secrets (CRITICAL!)
+# ========================================
+
+# NEVER commit these files - they contain private keys and secrets!
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets.json
+.secrets
+
+# ========================================
+# Dependencies
+# ========================================
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Package manager lock files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ========================================
+# Build & Compilation Outputs
+# ========================================
+
+# Hardhat
+artifacts/
+cache/
+coverage/
+coverage.json
+typechain-types/
+
+# TypeScript
+dist/
+*.tsbuildinfo
+*.js.map
+
+# Build outputs
+build/
+out/
+
+# ========================================
+# IDE & Editor Files
+# ========================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ========================================
+# Testing & Coverage
+# ========================================
+
+# Test outputs
+test-results/
+.nyc_output/
+
+# Coverage reports
+coverage/
+.coverage
+htmlcov/
+*.lcov
+
+# ========================================
+# Operating System Files
+# ========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ========================================
+# Logs & Temporary Files
+# ========================================
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ========================================
+# Deployment & Production
+# ========================================
+
+# Deployment artifacts
+deployments/localhost/
+deployments/hardhat/
+
+# Production builds (keep testnet deployments)
+# deployments/mainnet/
+
+# ========================================
+# Blockchain & Hardhat Specific
+# ========================================
+
+# Hardhat network files
+cache-hardhat/
+artifacts-hardhat/
+
+# Tenderly
+.tenderly/
+
+# Foundry
+lib/
+cache_forge/
+out_forge/
+
+# ========================================
+# Frontend & Public Assets (if applicable)
+# ========================================
+
+# Development server
+.vite/
+vite.config.js.timestamp-*
+
+# Production builds
+public/dist/
+public/build/
+
+# Static generation
+.next/
+.nuxt/
+
+# ========================================
+# Documentation
+# ========================================
+
+# Generated docs (keep source docs)
+docs/.build/
+.docusaurus/
+
+# ========================================
+# Security & Audit
+# ========================================
+
+# Security audit reports (sensitive)
+audit-reports/*.private.md
+
+# Slither outputs
+slither-report.json
+
+# ========================================
+# Miscellaneous
+# ========================================
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+
+# Python (if using any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# ========================================
+# Project Specific
+# ========================================
+
+# Local deployment addresses (if you want to keep them private)
+# deployments/sepolia/*.json
+
+# Gas reports (optional)
+# gas-report.txt
+
+# Test snapshots
+.snapshots/
+
+# ========================================
+# Keep These Files (Exceptions)
+# ========================================
+
+# Keep example environment file
+!.env.example
+
+# Keep deployment configuration examples
+!deployments/README.md
+
+# Keep test fixtures
+!test/fixtures/
+
+# Keep public assets
+!public/**/*.html
+!public/**/*.css
+!public/**/*.js
+
+# ========================================
+# Notes
+# ========================================
+
+# This .gitignore is configured for:
+# - Hardhat development
+# - TypeScript projects
+# - FHE/Privacy-focused blockchain apps
+# - Frontend integration
+# - Multi-environment deployment
+
+# IMPORTANT SECURITY REMINDERS:
+# 1. NEVER commit .env files
+# 2. NEVER commit private keys
+# 3. NEVER commit API keys or secrets
+# 4. Review all commits before pushing
+# 5. Use git secrets or similar tools to scan for leaks
