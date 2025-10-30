@@ -1,12 +1,15 @@
 # 🏠 Private Renovation Budget Manager
 
-**Privacy-preserving renovation budget management with Zama FHEVM** - Homeowners create confidential budgets, contractors submit encrypted bids, all computations happen on encrypted data.
+**Privacy-preserving renovation budget management with Zama FHEVM** - A modern **Next.js 14** application with **React 18** and **TypeScript**, where homeowners create confidential budgets and contractors submit encrypted bids, with all computations happening on encrypted data.
 
 🌐 **[Live Demo](https://JanyBlick.github.io/RenovationBudget)** | 📜 **[Contract: 0x301258...](https://sepolia.etherscan.io/address/0x301258156b7D06e69A2E116fc8EC574B78D2EA38)** | 📖 **[Zama Docs](https://docs.zama.ai/fhevm)**
 
 ![Version](https://img.shields.io/badge/version-2.1.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Network](https://img.shields.io/badge/network-Sepolia-purple)
+[![Next.js](https://img.shields.io/badge/Next.js-14.0.4-black.svg)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-18.2.0-61DAFB.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.24-blue.svg)](https://soliditylang.org/)
 [![codecov](https://codecov.io/gh/JanyBlick/RenovationBudget/branch/main/graph/badge.svg)](https://codecov.io/gh/JanyBlick/RenovationBudget)
 
@@ -16,23 +19,34 @@ Built for the **Zama FHE Challenge** - demonstrating practical privacy-preservin
 
 ## ✨ Features
 
+### Smart Contract Features
 - 🔐 **Fully Encrypted Budgets** - Room costs and totals encrypted with FHE (`euint64`, `euint32`)
 - 💰 **Confidential Bidding** - Contractors submit encrypted bids invisible to competitors
 - 🧮 **Homomorphic Calculations** - Budget totals computed on encrypted data using `FHE.add()`, `FHE.mul()`
 - 🏗️ **Project Management** - Create, update, and approve projects with encrypted parameters
 - 🔒 **Access Control** - Role-based permissions (Owner, Homeowner, Contractor)
 - ⏸️ **Emergency Pause** - Multi-pauser system for security incidents
-- 📊 **Transaction History** - Real-time tracking with status updates
 - 🎯 **Gas Optimized** - Compiler optimization (800 runs) for efficient execution
+
+### Frontend Features (Next.js)
+- ⚡ **Server-Side Rendering** - Fast page loads with SSR/SSG capabilities
+- 🎨 **Modern UI** - React 18 with TypeScript for type-safe development
+- 🔄 **Real-time Updates** - Live transaction history tracking
+- 📱 **Responsive Design** - Mobile-friendly interface
+- 🚀 **Optimized Performance** - Next.js automatic code splitting and optimization
+- 🔌 **Web3 Integration** - Seamless MetaMask wallet connection
+- 🛡️ **Type Safety** - Full TypeScript support with TypeChain for contract interactions
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-Frontend (Vanilla JS + Ethers.js)
-├── Client-side FHE encryption (fhevmjs)
-├── MetaMask integration
+Frontend (Next.js 14 + React + TypeScript)
+├── Server-side rendering (SSR/SSG)
+├── Client-side FHE encryption (@fhevm/sdk + fhevmjs)
+├── Type-safe Web3 integration (Ethers.js + TypeChain)
+├── MetaMask wallet connection
 ├── Real-time encrypted data display
 └── Transaction history tracking
 
@@ -84,8 +98,17 @@ Homeowner                    Smart Contract                  Contractor
 git clone https://github.com/JanyBlick/RenovationBudget.git
 cd RenovationBudget
 
-# Install dependencies
+# Navigate to Next.js application
+cd renovation-budget
+
+# Install all dependencies (contracts + frontend)
 npm install
+
+# This installs:
+# - Next.js 14 and React 18
+# - Hardhat and Solidity tooling
+# - Ethers.js and fhevmjs
+# - TypeScript and all development tools
 ```
 
 ### 2️⃣ Configure Environment
@@ -118,24 +141,35 @@ KMS_GENERATION=1
 
 > 📖 **Full configuration guide**: See [ENV_CONFIGURATION_GUIDE.md](ENV_CONFIGURATION_GUIDE.md)
 
-### 3️⃣ Deploy Contract
+### 3️⃣ Compile & Deploy Contract
 
 ```bash
-# Compile contracts
+# Generate TypeChain types for type-safe contract interactions
+npm run typechain
+
+# Compile smart contracts
 npm run compile
 
-# Deploy to Sepolia
+# Deploy to Sepolia testnet
 npm run deploy
+
+# Save the deployed contract address for frontend configuration
 ```
 
 ### 4️⃣ Run Frontend
 
 ```bash
-# Start local server
+# Navigate to renovation-budget directory
+cd renovation-budget
+
+# Install dependencies
+npm install
+
+# Start Next.js development server
 npm run dev
 
 # Open browser
-# http://localhost:8080
+# http://localhost:3001
 ```
 
 ---
@@ -222,24 +256,54 @@ contract PrivateRenovationBudget {
 }
 ```
 
-### Frontend Integration
+### Frontend Integration (Next.js + TypeScript)
 
-```javascript
-// Initialize fhevmjs
-import { createInstance } from 'fhevmjs';
+```typescript
+// app/page.tsx or components/BudgetManager.tsx
+'use client'; // Next.js client component
 
-const instance = await createInstance({
-  chainId: 11155111, // Sepolia
-  publicKey: contractPublicKey,
-  gatewayUrl: 'https://gateway.sepolia.zama.ai'
-});
+import { useState, useEffect } from 'react';
+import { BrowserProvider } from 'ethers';
+import { createInstance, FhevmInstance } from 'fhevmjs';
 
-// Encrypt data client-side
-const area = await instance.encrypt64(1000); // 1000 sq ft
-const cost = await instance.encrypt64(50); // $50 per sq ft
+export default function BudgetManager() {
+  const [fhevmInstance, setFhevmInstance] = useState<FhevmInstance | null>(null);
 
-// Submit to contract
-await contract.addRoomRequirement(projectId, area, cost);
+  useEffect(() => {
+    async function initFhevm() {
+      // Initialize fhevmjs with TypeScript types
+      const instance = await createInstance({
+        chainId: 11155111, // Sepolia
+        publicKey: contractPublicKey,
+        gatewayUrl: 'https://gateway.sepolia.zama.ai'
+      });
+      setFhevmInstance(instance);
+    }
+
+    initFhevm();
+  }, []);
+
+  async function addRoom(projectId: number, area: number, cost: number) {
+    if (!fhevmInstance) return;
+
+    // Encrypt data client-side with type safety
+    const encryptedArea = await fhevmInstance.encrypt64(area);
+    const encryptedCost = await fhevmInstance.encrypt64(cost);
+
+    // Submit to contract with Ethers v6
+    const provider = new BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new Contract(contractAddress, abi, signer);
+
+    await contract.addRoomRequirement(projectId, encryptedArea, encryptedCost);
+  }
+
+  return (
+    <div>
+      {/* Next.js React components */}
+    </div>
+  );
+}
 ```
 
 ---
@@ -434,21 +498,32 @@ if (project.selectedContractor === myAddress) {
 
 ### Frontend
 
-- **Core**: Vanilla JavaScript + HTML5 + CSS3
+- **Framework**: Next.js 14.0.4 (React-based)
+- **UI Library**: React 18.2.0 + React DOM 18.2.0
 - **Web3**: Ethers.js v6.9.0
-- **FHE Client**: fhevmjs v0.6.2
+- **FHE Client**: fhevmjs v0.6.2 + @fhevm/sdk
+- **Language**: TypeScript 5.8.3
 - **Wallet**: MetaMask integration
-- **Deployment**: GitHub Pages
-- **Server**: http-server (development)
+- **Deployment**: Vercel / GitHub Pages
+- **Development Server**: Next.js Dev Server (Port 3001)
 
 ### Development Tools
 
-- **Linting**: Solhint 4.1.0 + ESLint 8.56.0
-- **Formatting**: Prettier 3.1.0
-- **Security**: eslint-plugin-security, detect-secrets-launcher
-- **Pre-commit**: Husky 8.0.3
+- **TypeScript**: TypeScript 5.8.3 + ts-node 10.9.2
+- **Type Generation**: TypeChain 8.3.2 (@typechain/ethers-v6, @typechain/hardhat)
+- **Linting**:
+  - Solidity: Solhint 4.1.0
+  - TypeScript/JavaScript: ESLint 8.56.0 + @typescript-eslint
+  - Security: eslint-plugin-security, eslint-plugin-no-secrets
+- **Formatting**: Prettier 3.1.0 + prettier-plugin-solidity
+- **Pre-commit Hooks**: Husky (for code quality checks)
+- **Testing Tools**:
+  - Mocha + Chai 4.5.0
+  - @nomicfoundation/hardhat-chai-matchers
+  - @types/mocha, @types/chai
 - **Gas Analysis**: hardhat-gas-reporter 2.3.0
 - **Coverage**: solidity-coverage 0.8.16
+- **Contract Tools**: hardhat-contract-sizer 2.10.0
 
 ### Infrastructure
 
@@ -465,45 +540,60 @@ if (project.selectedContractor === myAddress) {
 ### Project Structure
 
 ```
-RenovationBudget/
-├── contracts/
-│   ├── PrivateRenovationBudget.sol    # Main contract
-│   └── interfaces/                     # Interface definitions
-├── scripts/
-│   ├── deploy.js                       # Deployment script
-│   └── test-pause.js                   # Pause testing
-├── test/
-│   ├── PrivateRenovationBudget.test.ts        # Unit tests (62 tests)
-│   └── PrivateRenovationBudget.sepolia.test.ts # Integration tests (13 tests)
-├── public/
-│   ├── index.html                      # Frontend UI
-│   ├── app.js                          # Application logic
-│   └── styles.css                      # Glassmorphism UI
-├── hardhat.config.js                   # Hardhat configuration
-├── env.example.txt                        # Environment template
-└── package.json                        # Dependencies
+PrivateRenovationBudget-main/
+├── renovation-budget/                  # Main Next.js application
+│   ├── src/                           # Next.js source code
+│   │   ├── app/                       # App router pages
+│   │   ├── components/                # React components
+│   │   └── lib/                       # Utility functions
+│   ├── contracts/
+│   │   ├── PrivateRenovationBudget.sol # Main contract
+│   │   └── interfaces/                 # Interface definitions
+│   ├── scripts/
+│   │   ├── deploy.js                   # Deployment script
+│   │   └── test-pause.js               # Pause testing
+│   ├── test/
+│   │   ├── PrivateRenovationBudget.test.ts         # Unit tests (62 tests)
+│   │   └── PrivateRenovationBudget.sepolia.test.ts # Integration tests (13 tests)
+│   ├── public/                         # Static assets
+│   ├── hardhat.config.js               # Hardhat configuration
+│   ├── next.config.js                  # Next.js configuration
+│   ├── tsconfig.json                   # TypeScript configuration
+│   ├── env.example.txt                 # Environment template
+│   └── package.json                    # Dependencies
+└── README.md                           # This file
 ```
 
 ### Local Development
 
 ```bash
+# Clone and navigate to project
+cd renovation-budget
+
 # Install dependencies
 npm install
 
-# Compile contracts
+# Compile smart contracts
 npm run compile
 
 # Run tests
 npm test
 
-# Start local node
+# Start local Hardhat node (Terminal 1)
 npx hardhat node
 
-# Deploy locally
+# Deploy locally (Terminal 2)
 npm run deploy:local
 
-# Run frontend
+# Start Next.js development server (Terminal 3)
 npm run dev
+# Visit http://localhost:3001
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
 ### Code Quality
@@ -588,33 +678,56 @@ npm run deploy
 npx hardhat verify --network sepolia <CONTRACT_ADDRESS>
 ```
 
-### Deploy Frontend
+### Deploy Frontend (Next.js)
 
-**GitHub Pages (Automatic):**
-
-```bash
-# 1. Push to GitHub
-git add .
-git commit -m "Deploy application"
-git push origin main
-
-# 2. Enable GitHub Pages
-# Settings → Pages → Source: GitHub Actions
-
-# 3. Site will be live at:
-# https://JanyBlick.github.io/RenovationBudget
-```
-
-**Vercel:**
+**Vercel (Recommended for Next.js):**
 
 ```bash
 # 1. Install Vercel CLI
 npm i -g vercel
 
-# 2. Deploy
+# 2. Navigate to project directory
+cd renovation-budget
+
+# 3. Deploy to Vercel
 vercel --prod
 
-# 3. Set environment variables in Vercel dashboard
+# 4. Configure environment variables in Vercel dashboard:
+# - Add your contract address
+# - Add RPC URLs
+# - Add any API keys
+
+# Your app will be live at: https://your-app.vercel.app
+```
+
+**Manual Deployment (Static Export):**
+
+```bash
+# 1. Update next.config.js to enable static export
+# Add: output: 'export'
+
+# 2. Build static site
+npm run build
+
+# 3. Deploy 'out' directory to:
+# - GitHub Pages
+# - Netlify
+# - Any static hosting service
+```
+
+**GitHub Pages (Static Export):**
+
+```bash
+# 1. Build static export
+npm run build
+
+# 2. Push to GitHub
+git add .
+git commit -m "Deploy Next.js application"
+git push origin main
+
+# 3. Configure GitHub Pages to serve from 'out' directory
+# Settings → Pages → Source: GitHub Actions
 ```
 
 ---
@@ -663,6 +776,51 @@ await window.ethereum.request({
   method: 'wallet_switchEthereumChain',
   params: [{ chainId: '0xaa36a7' }], // 11155111 in hex
 });
+```
+
+**❌ "Next.js build errors"**
+
+```bash
+# Clear Next.js cache
+npm run clean
+
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+
+# Check TypeScript errors
+npx tsc --noEmit
+
+# Build again
+npm run build
+```
+
+**❌ "Port 3001 already in use"**
+
+```bash
+# Find and kill process on port 3001 (Windows)
+netstat -ano | findstr :3001
+taskkill /PID <PID> /F
+
+# Or change port in package.json
+"dev": "next dev -p 3002"
+```
+
+**❌ "'window' is not defined (SSR error)"**
+
+```typescript
+// Use dynamic import with ssr: false for browser-only code
+import dynamic from 'next/dynamic';
+
+const WalletConnector = dynamic(
+  () => import('@/components/WalletConnector'),
+  { ssr: false }
+);
+
+// Or check if window exists
+if (typeof window !== 'undefined') {
+  // Browser-only code
+}
 ```
 
 ---
@@ -721,12 +879,23 @@ All commits automatically run:
 
 ### 📅 Planned
 
+**Smart Contract Enhancements:**
 - [ ] Multi-signature project approval
 - [ ] Milestone-based payments
 - [ ] Contractor rating system
 - [ ] IPFS document storage
 - [ ] Mainnet deployment
 - [ ] L2 deployment (Optimism, Arbitrum)
+
+**Frontend/Next.js Improvements:**
+- [ ] Add Next.js App Router features (Server Components)
+- [ ] Implement React Query for state management
+- [ ] Add PWA support for mobile apps
+- [ ] Integrate Web3Modal for multi-wallet support
+- [ ] Add dark mode toggle
+- [ ] Implement i18n (internationalization)
+- [ ] Add real-time notifications with WebSockets
+- [ ] Create admin dashboard with analytics
 
 ---
 
