@@ -1,0 +1,201 @@
+# ========================================
+# Codecov Configuration
+# Private Renovation Budget Manager
+# ========================================
+#
+# This configuration file controls how Codecov processes
+# coverage reports for the project.
+#
+# Documentation: https://docs.codecov.com/docs/codecov-yaml
+
+# Coverage reporting settings
+coverage:
+  # Precision of coverage percentage (2 decimal places)
+  precision: 2
+
+  # Round coverage to nearest decimal
+  round: down
+
+  # Coverage range (0-100)
+  range: "70...100"
+
+  # Status checks configuration
+  status:
+    # Project-wide coverage
+    project:
+      default:
+        # Target coverage percentage
+        target: 85%
+
+        # Threshold for status check failure
+        threshold: 2%
+
+        # Only post status if coverage drops
+        if_ci_failed: error
+
+        # Informational only (don't block PRs)
+        informational: false
+
+        # Only compare against base branch
+        only_pulls: false
+
+    # Per-patch (PR) coverage
+    patch:
+      default:
+        # Target coverage for new code
+        target: 80%
+
+        # Threshold for new code
+        threshold: 5%
+
+        # Only check new code in PRs
+        only_pulls: true
+
+        # Don't block PRs based on patch coverage
+        informational: false
+
+    # Changes in coverage
+    changes:
+      default:
+        # Only check changes in PRs
+        only_pulls: true
+
+        # Informational only
+        informational: true
+
+# Comment configuration for pull requests
+comment:
+  # Layout of the coverage comment
+  layout: "header, diff, files, footer"
+
+  # Show coverage for all files or only changed files
+  behavior: default
+
+  # Require changes to post comment
+  require_changes: false
+
+  # Require base commit for comparison
+  require_base: false
+
+  # Require head commit for comparison
+  require_head: true
+
+  # Show coverage for these branches
+  branches:
+    - main
+    - develop
+
+# Ignore patterns for coverage
+ignore:
+  - "test/**/*"
+  - "tests/**/*"
+  - "scripts/**/*"
+  - "migrations/**/*"
+  - "coverage/**/*"
+  - "node_modules/**/*"
+  - ".github/**/*"
+  - "public/**/*"
+  - "docs/**/*"
+  - "**/*.config.js"
+  - "**/*.config.ts"
+  - "**/hardhat.config.ts"
+  - "**/hardhat.config.js"
+
+# Flags for grouping coverage reports
+flags:
+  unittests:
+    paths:
+      - contracts/
+    carryforward: true
+
+# GitHub Checks integration
+github_checks:
+  annotations: true
+
+# Codecov notification settings
+codecov:
+  # Require CI to pass before processing
+  require_ci_to_pass: true
+
+  # Notify on coverage changes
+  notify:
+    # Wait for all CI jobs to complete
+    wait_for_ci: true
+
+    # After this many seconds, process anyway
+    after_n_builds: 5
+
+# Parsing coverage reports
+parsers:
+  gcov:
+    branch_detection:
+      conditional: true
+      loop: true
+      method: false
+      macro: false
+
+# ========================================
+# Coverage Targets by File Type
+# ========================================
+
+# Component coverage (for future use)
+component_management:
+  individual_components:
+    # Smart contracts should have high coverage
+    - component_id: contracts
+      name: Smart Contracts
+      paths:
+        - contracts/**/*.sol
+
+    # Tests don't need coverage (they are the coverage!)
+    - component_id: tests
+      name: Tests
+      paths:
+        - test/**/*
+
+# ========================================
+# Notification Settings
+# ========================================
+
+# Slack notifications (optional - configure in Codecov UI)
+# slack:
+#   url: "SLACK_WEBHOOK_URL"
+#   threshold: 1%
+#   message: "Coverage changed by {{changed}}%"
+#   branches:
+#     - main
+
+# ========================================
+# UI Customization
+# ========================================
+
+ui:
+  # Hide complexity metrics (not applicable for Solidity)
+  hide_complexity: true
+
+  # Hide project coverage (show in header)
+  hide_project_coverage: false
+
+# ========================================
+# Best Practices Notes
+# ========================================
+#
+# 1. Target Coverage:
+#    - Smart Contracts: 85%+ (critical code)
+#    - Test Files: N/A (ignored)
+#    - Scripts: 50%+ (deployment scripts)
+#
+# 2. Status Checks:
+#    - Project: Must maintain 85% overall
+#    - Patch: New code should be 80%+ covered
+#    - Changes: Informational only
+#
+# 3. Configuration:
+#    - Set CODECOV_TOKEN in GitHub Secrets
+#    - Enable Codecov app in repository
+#    - Review coverage reports in PRs
+#
+# 4. Maintenance:
+#    - Review ignored paths quarterly
+#    - Adjust targets based on project maturity
+#    - Monitor coverage trends over time

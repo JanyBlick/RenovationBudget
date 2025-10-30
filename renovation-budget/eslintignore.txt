@@ -1,0 +1,37 @@
+# ========================================
+# ESLint Ignore Configuration
+# Private Renovation Budget Manager
+# ========================================
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build artifacts
+artifacts/
+cache/
+coverage/
+typechain-types/
+dist/
+build/
+out/
+
+# Configuration files
+*.config.js
+*.config.ts
+hardhat.config.ts
+hardhat.config.js
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Documentation
+*.md
+
+# Public assets (vanilla JS - separate linting)
+public/**/*.js
