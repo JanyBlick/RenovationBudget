@@ -540,7 +540,7 @@ if (project.selectedContractor === myAddress) {
 ### Project Structure
 
 ```
-PrivateRenovationBudget-main/
+RenovationBudget
 ├── renovation-budget/                  # Main Next.js application
 │   ├── src/                           # Next.js source code
 │   │   ├── app/                       # App router pages
