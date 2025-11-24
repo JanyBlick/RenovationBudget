@@ -2,7 +2,7 @@
 
 **Next-generation privacy-preserving renovation budget management with advanced FHE** - A modern application featuring **Gateway callback patterns**, **timeout protection**, **automatic refunds**, and **privacy-preserving division** for secure budget management on blockchain.
 
-🌐 **[Documentation](#documentation)** | 📖 **[Architecture Guide](ARCHITECTURE.md)** | 📚 **[API Reference](API_DOCUMENTATION.md)**
+🌐 **[Documentation](#documentation)** | 📖 **[Architecture Guide](ARCHITECTURE.md)** | 📚 **[API Reference](API_DOCUMENTATION.md)**| 📚 **[Live Demo](https://private-renovation-budget.vercel.app/)**
 
 ![Version](https://img.shields.io/badge/version-3.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
